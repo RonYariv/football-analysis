@@ -59,58 +59,60 @@ class Tracker:
             detections.extend(self.model.predict(batch, conf=0.1))
         return detections
 
-    def get_object_tracks(
-        self,
-        frames: List[np.ndarray],
-        read_from_stub: bool = False,
-        stub_path: Optional[str] = None,
-    ) -> Dict[str, List[Dict[int, Dict[str, Any]]]]:
-        """
-        Track players, referees, and the ball across frames.
-        """
-        if read_from_stub and stub_path and os.path.exists(stub_path):
-            with open(stub_path, "rb") as f:
-                return pickle.load(f)
+    def get_object_tracks(self, frames, read_from_stub=False, stub_path=None):
+
+        if read_from_stub and stub_path is not None and os.path.exists(stub_path):
+            with open(stub_path, 'rb') as f:
+                tracks = pickle.load(f)
+            return tracks
 
         detections = self.detect_frames(frames)
 
-        tracks = {"players": [], "referees": [], "ball": []}
+        tracks = {
+            "players": [],
+            "referees": [],
+            "ball": []
+        }
+
         for frame_num, detection in enumerate(detections):
             cls_names = detection.names
-            cls_id_map = {v: k for k, v in cls_names.items()}
+            cls_names_inv = {v: k for k, v in cls_names.items()}
 
-            # Convert detection to Supervision format
-            detection_sv = sv.Detections.from_ultralytics(detection)
+            # Covert to supervision Detection format
+            detection_supervision = sv.Detections.from_ultralytics(detection)
 
-            # Treat goalkeepers as players
-            for idx, class_id in enumerate(detection_sv.class_id):
+            # Convert GoalKeeper to player object
+            for object_ind, class_id in enumerate(detection_supervision.class_id):
                 if cls_names[class_id] == "goalkeeper":
-                    detection_sv.class_id[idx] = cls_id_map["player"]
+                    detection_supervision.class_id[object_ind] = cls_names_inv["player"]
 
-            # Update with tracker
-            tracked = self.tracker.update_with_detections(detection_sv)
+            # Track Objects
+            detection_with_tracks = self.tracker.update_with_detections(detection_supervision)
 
-            # Init frame dicts
             tracks["players"].append({})
             tracks["referees"].append({})
             tracks["ball"].append({})
 
-            for det in tracked:
-                bbox, _, _, cls_id, track_id = det
-                bbox = bbox.tolist()
-                if cls_id == cls_id_map["player"]:
+            for frame_detection in detection_with_tracks:
+                bbox = frame_detection[0].tolist()
+                cls_id = frame_detection[3]
+                track_id = frame_detection[4]
+
+                if cls_id == cls_names_inv['player']:
                     tracks["players"][frame_num][track_id] = {"bbox": bbox}
-                elif cls_id == cls_id_map["referee"]:
+
+                if cls_id == cls_names_inv['referee']:
                     tracks["referees"][frame_num][track_id] = {"bbox": bbox}
 
-            # Ball (detected separately)
-            for det in detection_sv:
-                bbox, _, _, cls_id = det
-                if cls_id == cls_id_map["ball"]:
-                    tracks["ball"][frame_num][1] = {"bbox": bbox.tolist()}
+            for frame_detection in detection_supervision:
+                bbox = frame_detection[0].tolist()
+                cls_id = frame_detection[3]
 
-        if stub_path:
-            with open(stub_path, "wb") as f:
+                if cls_id == cls_names_inv['ball']:
+                    tracks["ball"][frame_num][1] = {"bbox": bbox}
+
+        if stub_path is not None:
+            with open(stub_path, 'wb') as f:
                 pickle.dump(tracks, f)
 
         return tracks
@@ -140,24 +142,6 @@ class Tracker:
             thickness=2,
             lineType=cv2.LINE_4,
         )
-
-        if track_id is not None:
-            rect_w, rect_h = 40, 20
-            x1, x2 = x_center - rect_w // 2, x_center + rect_w // 2
-            y1, y2 = y2 - rect_h // 2 + 15, y2 + rect_h // 2 + 15
-
-            cv2.rectangle(frame, (x1, y1), (x2, y2), color, cv2.FILLED)
-
-            x_text = x1 + 12 if track_id < 100 else x1 + 2
-            cv2.putText(
-                frame,
-                str(track_id),
-                (x_text, y1 + 15),
-                cv2.FONT_HERSHEY_SIMPLEX,
-                0.6,
-                (0, 0, 0),
-                2,
-            )
 
         return frame
 
