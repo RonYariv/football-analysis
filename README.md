@@ -14,7 +14,7 @@ This project implements a complete pipeline for **soccer match analysis**, combi
 
 - **Tracking Across Frames**  
   - Tracks each player and the ball frame-by-frame using ByteTrack.  
-  - Maintains persistent track IDs for each object, even with occlusions.
+  - Maintains persistent track IDs for each object.
 
 - **Camera Movement Compensation**  
   - Estimates camera motion using Lucas-Kanade optical flow.  
@@ -25,13 +25,12 @@ This project implements a complete pipeline for **soccer match analysis**, combi
   - Enables precise player position and movement tracking on the field.
 
 - **Speed and Distance Calculation**  
-  - Calculates instantaneous speed (km/h) and cumulative distance (meters) for each player.  
+  - Calculates speed (km/h) and cumulative distance (meters) for each player.  
   - Provides per-frame metrics visible in video annotations.
 
 - **Team Assignment**  
-  - Automatically identifies team membership based on jersey color clustering.  
-  - Updates team assignments dynamically for every player.
-
+  - Automatically identifies team membership based on jersey color clustering.
+  
 - **Ball Possession Tracking**  
   - Assigns ball possession to the closest player intelligently.  
   - Computes team ball control statistics over time.
