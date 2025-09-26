@@ -1,12 +1,12 @@
-# Soccer Player Tracking & Analytics
+# Football Player Tracking & Analytics
 
-A **highly advanced computer vision system** for tracking soccer players and the ball, analyzing movements, speeds, distances, team assignment, and ball possession from video footage.
+A **highly advanced computer vision system** for tracking football players and the ball, analyzing movements, speeds, distances, team assignment, and ball possession from video footage.
 
 ---
 
 ## Features
 
-This project implements a complete pipeline for **soccer match analysis**, combining deep learning, tracking, and advanced computer vision techniques:
+This project implements a complete pipeline for **Football match analysis**, combining deep learning, tracking, and advanced computer vision techniques:
 
 - **Player and Ball Detection**  
   - Detects players, referees, and the ball in video frames using YOLO-based object detection.  
@@ -21,7 +21,7 @@ This project implements a complete pipeline for **soccer match analysis**, combi
   - Adjusts all positions relative to the moving camera for accurate measurements.
 
 - **Real-World Coordinate Transformation**  
-  - Maps pixel coordinates to actual soccer field dimensions using perspective transformation.  
+  - Maps pixel coordinates to actual football field dimensions using perspective transformation.  
   - Enables precise player position and movement tracking on the field.
 
 - **Speed and Distance Calculation**  
