@@ -216,7 +216,7 @@ class Tracker:
                     frame = self.draw_triangle(frame, player["bbox"], (0, 0, 255))
 
             for _, referee in tracks["referees"][frame_num].items():
-                frame = self.draw_ellipse(frame, referee["bbox"], (0, 255, 255))
+                frame = self.draw_ellipse(frame, referee["bbox"], (0, 0, 0))
 
             for _, ball in tracks["ball"][frame_num].items():
                 frame = self.draw_triangle(frame, ball["bbox"], (0, 255, 0))
