@@ -40,3 +40,4 @@ This project implements a complete pipeline for **soccer match analysis**, combi
   - Generates a visually informative output video for analysis.
 
 ---
+![Demo](demo_gif.gif)
